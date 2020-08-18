@@ -8,18 +8,16 @@ extern "C" {
 
 #define TOKEN_DELIMITER ","
 
-#ifdef _RDK_BROADBAND_PRIV_CAPS_
-        #ifdef _COSA_INTEL_XB3_ARM_
-                #define LOG_FILE "/rdklogs/logs/CapDebug.txt"
-        #elif _COSA_INTEL_USG_ATOM_
-                #define LOG_FILE "/rdklogs/logs/CapDebug_atom.txt"
-        #else
-                #define LOG_FILE "/rdklogs/logs/CapDebug.txt"
-        #endif
-#elif  defined (_RDK_VIDEO_PRIV_CAPS_)
-        #define LOG_FILE "/opt/logs/CapDebug.txt"
+/*
+   Control LOG_FILE via gcc builtin definition __i386__ to avoid the need to
+   manually define _RDK_BROADBAND_PRIV_CAPS_ etc from every possible source
+   file which may include this header.
+*/
+
+#if defined (__i386__)
+#define LOG_FILE "/rdklogs/logs/CapDebug_atom.txt"
 #else
-        #define LOG_FILE "/rdklogs/logs/CapDebug.txt"
+#define LOG_FILE "/rdklogs/logs/CapDebug.txt"
 #endif
 
 /* Read the default,allowed and drop capabilities from CAP_FILE */
