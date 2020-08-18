@@ -25,46 +25,11 @@ static cap_t caps;
 
 static void get_process_name(const pid_t pid, char *pname);
 
-#define BLOCKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blocklist"
-#ifdef _COSA_INTEL_XB3_ARM_
-    #define BLOCKLIST_FILE "/nvram/Blocklist_XB3.txt"
-#elif defined _COSA_INTEL_USG_ATOM_
-    #define BLOCKLIST_FILE "/nvram/Blocklist_XB3.txt"
-#else
-    #define BLOCKLIST_FILE "/opt/secure/Blocklist_file.txt"
-#endif
-
-/* prepare and updated caps list */
-bool isNull(char *str)
-{
- if(str == NULL || str[0] == '\0')
- {
-   return true;
- }
- return false;
-}
-
-bool fetchRFC(char* key,char** value)
-{
-#ifdef _RDK_VIDEO_PRIV_CAPS_
- RFC_ParamData_t nonrootsupportData;
- WDMP_STATUS nonrootstatus= getRFCParameter("NonRootSupport",key, &nonrootsupportData);
-  if (WDMP_SUCCESS == nonrootstatus && (!isNull(nonrootsupportData.value)))
-  {
-     *value = (char*)malloc(strlen(nonrootsupportData.value)+1);
-     if( NULL != *value ){
-        strncpy(*value,nonrootsupportData.value,strlen(nonrootsupportData.value)+1);
-        return true;
-     }
-  }
-#endif
-  return false;
-}
+#define BLOCKLIST_FILE "/nvram/Blocklist_file.txt"
 
 bool isBlocklisted()
 {
   bool ret=false;
-#ifdef _RDK_BROADBAND_PRIV_CAPS_
   FILE *fp = NULL;
   int len=0;
   char process_name[64]={'\0'};
@@ -101,24 +66,6 @@ bool isBlocklisted()
       buf = NULL;
     }
   }
-#elif _RDK_VIDEO_PRIV_CAPS_
- char *list=NULL;
- char process_name[64]={'\0'};
- if(fetchRFC(BLOCKLIST_RFC,&list))
- {
-    get_process_name(getpid(), process_name);
-    if(strcasestr(list,process_name) != NULL)
-    {
-       log_cap("process[%s] is found in blocklist,Thus process runs in Root mode\n",process_name);
-       ret = true;
-    }
- }
- if(list)
- {
-     free(list); // CID 192628 Resource leak (RESOURCE_LEAK)
-     list = NULL;
- }
-#endif
  return ret;
 }
 
