@@ -37,40 +37,14 @@
 extern "C" {
 #endif
 
-#ifdef _RDK_BROADBAND_PRIV_CAPS_
-        #ifdef _COSA_INTEL_XB3_ARM_
-                #define LOG_FILE "/rdklogs/logs/CapDebug.txt"
-        #elif _COSA_INTEL_USG_ATOM_
-                #define LOG_FILE "/rdklogs/logs/CapDebug_atom.txt"
-        #else
-                #define LOG_FILE "/rdklogs/logs/CapDebug.txt"
-        #endif
-#elif  defined (_RDK_VIDEO_PRIV_CAPS_)
-        #define LOG_FILE "/opt/logs/CapDebug.txt"
-#else
-        #define LOG_FILE "/tmp/CapDebug.txt"
-#endif
-#define log_cap(x...)  { \
-    FILE *fp = fopen(LOG_FILE, "a+"); \
-    struct tm *local; \
-    time_t t; \
-    t = time(NULL); \
-    local = gmtime(&t); \
-    char *tempTime = asctime(local); \
-    tempTime[ strlen(tempTime) - 1 ] = '\0'; \
-    if (fp != NULL) {  \
-        fprintf(fp,"%s[non-root]:",tempTime); \
-        fprintf(fp,## x); \
-        fclose(fp);  \
-    }                \
-}while(0) \
-
 typedef struct _cap_user {
 cap_value_t add[CAP_LAST_CAP+1];
 cap_value_t drop[CAP_LAST_CAP+1];
-char user_name[16];
+cap_value_t caps_default[CAP_LAST_CAP+1];
+char *user_name;
 short add_count;
 short drop_count;
+short default_count;
 char *caps;
 }cap_user;
 
@@ -100,6 +74,10 @@ void read_capability(cap_user *);
 
 /* Switch to root */
 void gain_root_privilege();
+
+void get_capabilities(const char *processname, cap_user *);
+
+void log_cap(const char * format, ...);
 #ifdef __cplusplus
 }
 #endif
