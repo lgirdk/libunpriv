@@ -17,7 +17,9 @@
  * limitations under the License.
 */
 #include "cap.h"
+#include "utility.h"
 #define BLACKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist"
+
 /* prepare and updated caps list */
 bool isNull(char *str)
 {
@@ -107,6 +109,7 @@ void get_process_name(const pid_t pid, char *pname)
         fclose(fp);
   }
 }
+
 /* initializes cap_t structure */
 cap_t init_capability(void)
 {
@@ -141,20 +144,43 @@ void read_capability(cap_user *_appcaps)
    log_cap("Dumping current caps of the process: %s\n", _appcaps->caps);
    cap_free(caps);
 }
+
+void set_ambient_caps( const cap_value_t caplist[],short count,cap_flag_value_t value)
+{
+    int i,retval=-1;
+    /* Make sure the inheritable set is preserved across execve via the ambient set*/
+    for ( i = 0; i < count ; i++) {
+        retval = cap_set_ambient(caplist[i],value);
+        if (retval != 0) {
+            char *amb_ptr;
+            amb_ptr = cap_to_name(caplist[i]);
+            log_cap("Unable to raise/lower ambient capability [%s]\n", amb_ptr);
+            cap_free(amb_ptr);
+        }
+    }
+}
+
 /* Identify the list of capabilities which need to set while run as non-root;
    capabilities will be changed based on the application
    Few capabilities can be added/droped by an application          */
 void drop_root_caps(cap_user *_appcaps)
 {
-   int retval=-1,def_count=0,i=0,amb_retval=-1;
+   int retval=-1;
    struct passwd *ent_pw = NULL;
+   const char *default_user = "non-root";
+
+   if (_appcaps->user_name == NULL)  {
+       _appcaps->user_name = (char*)malloc(strlen(default_user)+1);
+       if( NULL != _appcaps->user_name ){
+           strncpy(_appcaps->user_name,default_user,strlen(default_user)+1);
+       }
+   }
+
    char process_name[64]={'\0'};
-   const cap_value_t caps_default[] = {CAP_CHOWN,CAP_DAC_OVERRIDE,CAP_DAC_READ_SEARCH,CAP_FOWNER,CAP_FSETID,CAP_LINUX_IMMUTABLE,CAP_NET_BIND_SERVICE,CAP_NET_BROADCAST,CAP_NET_ADMIN,CAP_NET_RAW,CAP_IPC_LOCK,CAP_IPC_OWNER,CAP_SYS_CHROOT,CAP_SYS_PTRACE,CAP_SETPCAP,CAP_SYS_RESOURCE,CAP_SYS_ADMIN,CAP_SYS_BOOT,CAP_SYS_NICE,CAP_SETFCAP,CAP_SYS_TTY_CONFIG,CAP_SYS_RAWIO,CAP_SETGID,CAP_SETUID};
-   
    get_process_name(getpid(), process_name);
-   log_cap("Dropping root privilege of %s: runs as unprivilege mode\n", process_name);
+   get_capabilities(process_name, _appcaps);
+
    prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);    
-   def_count = sizeof(caps_default)/sizeof(int);
    if(getuid() == 0)  {
       ent_pw = getpwnam(_appcaps->user_name);
       if (ent_pw && ent_pw->pw_uid != 0)  {
@@ -170,10 +196,10 @@ void drop_root_caps(cap_user *_appcaps)
    if (cap_clear_flag(caps, CAP_EFFECTIVE)) {
        log_cap("cap_clear_flag() internal error \n");
    }
-   if ( (cap_set_flag(caps, CAP_EFFECTIVE, def_count, caps_default, CAP_SET) < 0) ) {
+   if ( (cap_set_flag(caps, CAP_EFFECTIVE,  _appcaps->default_count, _appcaps->caps_default, CAP_SET) < 0) ) {
          log_cap("Unable to set default EFFECTIVE Flags: \n");
    }
-   if ( (cap_set_flag(caps, CAP_INHERITABLE, def_count, caps_default, CAP_SET) < 0) ) {
+   if ( (cap_set_flag(caps, CAP_INHERITABLE,  _appcaps->default_count, _appcaps->caps_default, CAP_SET) < 0) ) {
          log_cap("Unable to set default INHERITABLE Flags: \n");
    }
    retval = cap_set_proc(caps);
@@ -183,22 +209,16 @@ void drop_root_caps(cap_user *_appcaps)
    }
   
    if (CAP_AMBIENT_SUPPORTED()) {
-       /* Make sure the inheritable set is preserved across execve via the ambient set */   
-       for ( i = 0; i < def_count ; i++) {
-	    amb_retval = cap_set_ambient(caps_default[i],CAP_SET);
-            if (amb_retval != 0) {
-	        char *amb_name_ptr;
-	        amb_name_ptr = cap_to_name(caps_default[i]);
-	        log_cap("Unable to raise ambient capability [%s]\n", amb_name_ptr);
-	        cap_free(amb_name_ptr);
- 	    }
-       }
+       set_ambient_caps(_appcaps->caps_default,_appcaps->default_count,CAP_SET);
    }
+   log_cap("Dropping root privilege of %s: runs as unprivilege mode\n", process_name);
 }
+
 int update_process_caps(cap_user *_appcaps)
 {
-   int retval=-1,i=0, j=0, amb_retval=-1;
+   int retval=-1;
    char process_name[64]={'\0'};
+
    if ( _appcaps->add_count > 0 )  {
      if (cap_set_flag(caps, CAP_EFFECTIVE, (_appcaps->add_count), _appcaps->add, CAP_SET) < 0)
      {
@@ -225,32 +245,16 @@ int update_process_caps(cap_user *_appcaps)
         exit(1);
    }
    prctl(PR_SET_DUMPABLE, 1, 0, 0, 0);
-  
+
    if (CAP_AMBIENT_SUPPORTED()) {
        if ( _appcaps->add_count > 0 )  {
-           for ( i = 0; i < _appcaps->add_count ; i++)  {
-               amb_retval = cap_set_ambient(_appcaps->add[i],CAP_SET);
-               if (amb_retval != 0) {
-                   char *amb_name_ptr;
-                   amb_name_ptr = cap_to_name(_appcaps->add[i]);
-                   log_cap("Unable to raise ambient capability [%s]\n", amb_name_ptr);
-                   cap_free(amb_name_ptr);
-               }
-           }
-       }   
-
-       if ( _appcaps->drop_count > 0 )  {
-           for ( j = 0; j < _appcaps->drop_count ; j++)  {
-               amb_retval = cap_set_ambient(_appcaps->drop[j],CAP_CLEAR);
-               if (amb_retval != 0) {
-                   char *amb_name_ptr;
-                   amb_name_ptr = cap_to_name(_appcaps->drop[j]);
-                   log_cap("Unable to lower ambient capability [%s]\n", amb_name_ptr);
-                   cap_free(amb_name_ptr);
-               }
-           }
-      }
+           set_ambient_caps(_appcaps->add,_appcaps->add_count,CAP_SET);
+       }
+       if ( _appcaps->drop_count > 0 ) {
+           set_ambient_caps(_appcaps->drop,_appcaps->drop_count,CAP_CLEAR);
+       }
    }
+
    get_process_name(getpid(), process_name);
    cap_free(caps);
    caps = NULL;

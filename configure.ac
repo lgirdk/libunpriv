@@ -32,6 +32,7 @@ AM_PROG_CC_C_O
 AM_PROG_LIBTOOL(libtool)
 TRACE_CFLAGS=" "
 TRACE_LIBS==" "
+AC_PROG_CXX
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
 

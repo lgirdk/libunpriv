@@ -16,11 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-AM_CFLAGS=$(TRACE_CFLAGS) $(LIBCAP_CFLAGS)
+AM_CFLAGS=$(TRACE_CFLAGS) $(LIBCAP_CFLAGS) $(CXXFLAGS)
+AM_CXXFLAGS = -Wall -std=c++1y
 lib_LTLIBRARIES = libprivilege.la
-libprivilege_la_SOURCES = cap.c
-libprivilege_la_LDFLAGS =$(TRACE_LIBS)
-libprivilege_la_include_HEADERS = cap.h
+libprivilege_la_SOURCES = cap.c utility.cpp
+libprivilege_la_LDFLAGS =$(TRACE_LIBS) -ljsoncpp
+libprivilege_la_include_HEADERS = cap.h 
 libprivilege_la_LIBADD = $(LIBCAP_LIBS)
 libprivilege_la_includedir = ${includedir}
-
