@@ -18,5 +18,9 @@
    "webpa":{
       "allow":"UGID_GROUP,NETWORK_GROUP",
       "drop":""
+   },
+   "PsmSsp":{
+      "allow":"UGID_GROUP",
+      "drop":""
    }
 }

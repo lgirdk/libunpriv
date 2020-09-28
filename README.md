@@ -61,6 +61,13 @@ libprivilege library dependes on libcap library. libcap or linux capabilities pr
 ![](images/process-capabilities.png)
 
 ## API:
+
+/* Check whether calling process is Blacklisted or not */ 
+bool isBlacklisted(void);
+
+/* to fetch the RFC value */ 
+bool fetchRFC(char* key,char** value);
+
 /* initializes cap_t structure */ 
 cap_t init_capability(void);
 
@@ -76,6 +83,8 @@ int update_process_caps(cap_user *);
 ## Steps to be followed to convert a process as non-root:
 • Identify the capabilities required for the process using apparmor , strace or code walkthrough.
 
+• Ensure process name is not present in Blacklist string "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist".
+
 • Add the processes specific tag in process-capabilities.json with allow and drop caps.
 
 • Define cap_user structure and Initialize it using init_capability().
@@ -85,6 +94,18 @@ int update_process_caps(cap_user *);
 • update_process_caps(&appcaps) -> Applies the process specific capabilities
 
 • read_capability(&appcaps) -> Reads and dumps the current process capabilities and dumps to log file.
+
+## Blacklist Mechanism:
+
+• RFC: Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist.
+
+• By Default, Blacklist String will be "Empty".
+
+• The Calling Process will run in Nonroot Mode in two conditions:
+    • Blacklist string does not contain the process name.
+    • Blacklist RFC is empty.
+    
+• If particular process added in Blacklist String, then it will be executed in Root mode.
 
 # Sequence Diagram:
 
