@@ -30,5 +30,9 @@
    "lighttpd":{
         "allow":"UGID_GROUP,NETWORK_GROUP",
         "drop":""
+  },
+  "bridgeUtils":{
+   	"allow":"NETWORK_GROUP,UGID_GROUP,SYSTEM_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
+   	"drop":""
   }
 }
