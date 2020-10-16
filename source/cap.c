@@ -17,7 +17,61 @@
  * limitations under the License.
 */
 #include "cap.h"
+#define BLACKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist"
 /* prepare and updated caps list */
+bool isNull(char *str)
+{
+ if(str == NULL || str[0] == '\0')
+ {
+   return true;
+ }
+ return false;
+}
+
+bool fetchRFC(char* key,char** value)
+{
+#ifdef _RDK_VIDEO_PRIV_CAPS_
+ RFC_ParamData_t nonrootsupportData;
+ WDMP_STATUS nonrootstatus= getRFCParameter("NonRootSupport",key, &nonrootsupportData);
+  if (WDMP_SUCCESS == nonrootstatus && (!isNull(nonrootsupportData.value))) 
+  {
+     *value = (char*)malloc(strlen(nonrootsupportData.value)+1);
+     if( NULL != *value ){
+        strncpy(*value,nonrootsupportData.value,strlen(nonrootsupportData.value)+1);
+        return true;
+     }
+  }
+#endif
+  return false;
+}
+
+bool isBlacklisted()
+{
+ bool ret=false;
+ char process_name[64]={'\0'};
+ char *list=NULL;
+ 
+ if(fetchRFC(BLACKLIST_RFC,&list))
+ {
+    log_cap("The Blacklist is : %s\n",list);
+    get_process_name(getpid(), process_name);
+    if(strcasestr(list,process_name) != NULL)
+    {
+       log_cap("process[%s] is found in blacklist,Thus process runs in Root mode\n",process_name);
+       ret = true;
+    } 
+    else
+    {
+       log_cap("process[%s] is not found in blacklist,Thus process runs in Nonroot mode\n",process_name);
+    }
+ }
+ else
+ {
+    log_cap("Blacklist process list is empty\n");
+ }
+ return ret;
+}
+
 void prepare_caps(cap_user *_appcaps,const cap_value_t _cap_add[],const cap_value_t _cap_drop[])
 {
     int i=0;
@@ -52,7 +106,6 @@ void get_process_name(const pid_t pid, char *pname)
 	}
         fclose(fp);
   }
-  log_cap("Dropping root privilege of %s: runs as unprivilege mode\n", pname);
 }
 /* initializes cap_t structure */
 cap_t init_capability(void)
@@ -95,8 +148,11 @@ void drop_root_caps(cap_user *_appcaps)
 {
    int retval=-1,def_count=0,i=0,amb_retval=-1;
    struct passwd *ent_pw = NULL;
+   char process_name[64]={'\0'};
    const cap_value_t caps_default[] = {CAP_CHOWN,CAP_DAC_OVERRIDE,CAP_DAC_READ_SEARCH,CAP_FOWNER,CAP_FSETID,CAP_LINUX_IMMUTABLE,CAP_NET_BIND_SERVICE,CAP_NET_BROADCAST,CAP_NET_ADMIN,CAP_NET_RAW,CAP_IPC_LOCK,CAP_IPC_OWNER,CAP_SYS_CHROOT,CAP_SYS_PTRACE,CAP_SETPCAP,CAP_SYS_RESOURCE,CAP_SYS_ADMIN,CAP_SYS_BOOT,CAP_SYS_NICE,CAP_SETFCAP,CAP_SYS_TTY_CONFIG,CAP_SYS_RAWIO,CAP_SETGID,CAP_SETUID};
- 
+   
+   get_process_name(getpid(), process_name);
+   log_cap("Dropping root privilege of %s: runs as unprivilege mode\n", process_name);
    prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);    
    def_count = sizeof(caps_default)/sizeof(int);
    if(getuid() == 0)  {
@@ -212,3 +268,4 @@ void gain_root_privilege()
     exit(1);
   }
 }
+

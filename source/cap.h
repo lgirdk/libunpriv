@@ -30,7 +30,9 @@
 #include <pwd.h>
 #include <errno.h>
 #include <stdbool.h>
-
+#ifdef _RDK_VIDEO_PRIV_CAPS_
+#include "rfcapi.h"
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -74,6 +76,12 @@ char *caps;
 
 cap_t caps;
 
+// check for blacklist process
+bool isBlacklisted(void);
+
+// fetch the blacklist rfc
+bool fetchRFC(char* key,char** value);
+
 /* initializes cap_t structure */
 cap_t init_capability(void);
 
@@ -97,3 +105,4 @@ void gain_root_privilege();
 #endif
   
 #endif //CAP_H_   
+
