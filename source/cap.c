@@ -203,10 +203,13 @@ int drop_root_caps(cap_user *_appcaps)
         log_cap("PERMITTED - cap_clear_flag() internal error\n");
    }
    if ( (cap_set_flag(caps, CAP_PERMITTED,  _appcaps->default_count, _appcaps->caps_default, CAP_SET) < 0) ) {
-        log_cap("Unable to set the PERMITTED default Flags\n");
+        log_cap("Unable to set default PERMITTED Flags\n");
    }
-   if ( (cap_set_flag(caps, CAP_PERMITTED,  _appcaps->add_count, _appcaps->add, CAP_SET) < 0) ) {
-        log_cap("Unable to set the PERMITTED add Flags\n");
+   if ( _appcaps->add_count > 0 )  {
+     if (cap_set_flag(caps, CAP_PERMITTED, (_appcaps->add_count), _appcaps->add, CAP_SET) < 0)
+     {
+         log_cap("Unable to set process specific PERMITTED Flags\n");
+     }
    }
 
    if (cap_clear_flag(caps, CAP_EFFECTIVE)) {
@@ -246,6 +249,10 @@ int update_process_caps(cap_user *_appcaps)
      }
    }
    if ( _appcaps->drop_count > 0 ) {
+     if (cap_set_flag(caps, CAP_PERMITTED, (_appcaps->drop_count), _appcaps->drop, CAP_CLEAR) < 0)
+     {
+         log_cap("Unable to clear process specific PERMITTED Flags\n");
+     }
      if (cap_set_flag(caps, CAP_EFFECTIVE, (_appcaps->drop_count), _appcaps->drop, CAP_CLEAR) < 0)
      {
          log_cap("Unable to clear process specific EFFECTIVE Flags\n");
