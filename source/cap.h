@@ -78,7 +78,6 @@ void gain_root_privilege();
 void get_capabilities(const char *processname, cap_user *);
 
 void log_cap(const char * format, ...);
-void get_process_name(const pid_t pid, char *pname);
 #ifdef __cplusplus
 }
 #endif
