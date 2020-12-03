@@ -18,6 +18,9 @@
 */
 #include "cap.h"
 #include "utility.h"
+
+static void get_process_name(const pid_t pid, char *pname);
+
 #define BLACKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist"
 
 /* prepare and updated caps list */
@@ -94,7 +97,8 @@ void prepare_caps(cap_user *_appcaps,const cap_value_t _cap_add[],const cap_valu
     }  
     strncpy(_appcaps->user_name, default_user,sizeof(_appcaps->user_name));
 }
-void get_process_name(const pid_t pid, char *pname)
+
+static void get_process_name(const pid_t pid, char *pname)
 {
   char procfile[32]={'\0'};
   sprintf(procfile, "/proc/%d/comm", pid);
