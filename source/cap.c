@@ -21,6 +21,8 @@
 #include "utility.h"
 #include <string.h>
 
+static cap_t caps;
+
 static void get_process_name(const pid_t pid, char *pname);
 
 #define BLACKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist"
