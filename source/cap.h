@@ -48,8 +48,6 @@ short default_count;
 char *caps;
 }cap_user;
 
-cap_t caps;
-
 // check for blacklist process
 bool isBlacklisted(void);
 
