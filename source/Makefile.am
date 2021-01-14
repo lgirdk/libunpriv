@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-AM_CFLAGS=$(TRACE_CFLAGS) $(LIBCAP_CFLAGS) $(CXXFLAGS)
+AM_CFLAGS=$(TRACE_CFLAGS) $(LIBCAP_CFLAGS) 
 AM_CXXFLAGS = -Wall -std=c++1y
 lib_LTLIBRARIES = libprivilege.la
 libprivilege_la_SOURCES = cap.c utility.cpp

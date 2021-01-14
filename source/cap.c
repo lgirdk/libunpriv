@@ -16,8 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
+#define _GNU_SOURCE
 #include "cap.h"
 #include "utility.h"
+#include <string.h>
 #define BLACKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist"
 
 /* prepare and updated caps list */
@@ -91,8 +93,11 @@ void prepare_caps(cap_user *_appcaps,const cap_value_t _cap_add[],const cap_valu
          for ( i = 0; i < _appcaps->drop_count ; i++)  {
                 _appcaps->drop[i]= _cap_drop[i];
          }
-    }  
-    strncpy(_appcaps->user_name, default_user,sizeof(_appcaps->user_name));
+    }
+    if (_appcaps->user_name)  {
+       strncpy(_appcaps->user_name, default_user, strlen(default_user)+1);
+    }
+
 }
 void get_process_name(const pid_t pid, char *pname)
 {
