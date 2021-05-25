@@ -34,5 +34,13 @@
   "bridgeUtils":{
    	"allow":"NETWORK_GROUP,UGID_GROUP,SYSTEM_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
    	"drop":""
+  },
+  "wanmanager":{
+        "allow":"UGID_GROUP,SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
+        "drop":""
+  },
+  "pppmanager":{
+        "allow":"UGID_GROUP,SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
+        "drop":""
   }
 }
