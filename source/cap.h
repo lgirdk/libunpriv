@@ -64,10 +64,10 @@ void prepare_caps(cap_user *,const cap_value_t cap_add[], const cap_value_t cap_
 
 /* Identify the list of capabilities which need to set while run as non-root;
    Default capabilities will be applied from this function */
-void drop_root_caps(cap_user *);
+int drop_root_caps(cap_user *);
 
 /* Applying process/application specific capabilities */
-int update_process_caps(cap_user *); 
+int update_process_caps(cap_user *);
 
 /* Read the current capability of process */
 void read_capability(cap_user *);
@@ -82,6 +82,6 @@ void get_process_name(const pid_t pid, char *pname);
 #ifdef __cplusplus
 }
 #endif
-  
-#endif //CAP_H_   
+
+#endif //CAP_H_
 

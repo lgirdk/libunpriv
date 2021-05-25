@@ -7,7 +7,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -37,7 +37,7 @@ bool fetchRFC(char* key,char** value)
 #ifdef _RDK_VIDEO_PRIV_CAPS_
  RFC_ParamData_t nonrootsupportData;
  WDMP_STATUS nonrootstatus= getRFCParameter("NonRootSupport",key, &nonrootsupportData);
-  if (WDMP_SUCCESS == nonrootstatus && (!isNull(nonrootsupportData.value))) 
+  if (WDMP_SUCCESS == nonrootstatus && (!isNull(nonrootsupportData.value)))
   {
      *value = (char*)malloc(strlen(nonrootsupportData.value)+1);
      if( NULL != *value ){
@@ -54,7 +54,7 @@ bool isBlacklisted()
  bool ret=false;
  char process_name[64]={'\0'};
  char *list=NULL;
- 
+
  if(fetchRFC(BLACKLIST_RFC,&list))
  {
     log_cap("The Blacklist is : %s\n",list);
@@ -63,7 +63,7 @@ bool isBlacklisted()
     {
        log_cap("process[%s] is found in blacklist,Thus process runs in Root mode\n",process_name);
        ret = true;
-    } 
+    }
     else
     {
        log_cap("process[%s] is not found in blacklist,Thus process runs in Nonroot mode\n",process_name);
@@ -83,7 +83,7 @@ void prepare_caps(cap_user *_appcaps,const cap_value_t _cap_add[],const cap_valu
     if ( _appcaps == NULL )  {
          log_cap("Failed to allocate cap_user: \n");
          exit(1);
-    }    
+    }
     if ( _cap_add != NULL )  {
          for ( i = 0; i < _appcaps->add_count ; i++)  {
                 _appcaps->add[i]= _cap_add[i];
@@ -97,7 +97,6 @@ void prepare_caps(cap_user *_appcaps,const cap_value_t _cap_add[],const cap_valu
     if (_appcaps->user_name)  {
        strncpy(_appcaps->user_name, default_user, strlen(default_user)+1);
     }
-
 }
 void get_process_name(const pid_t pid, char *pname)
 {
@@ -122,7 +121,6 @@ cap_t init_capability(void)
    if (caps == NULL)
    {
      log_cap("Capabilities not available \n");
-     exit(1);
    }
    return caps;
 }
@@ -168,7 +166,7 @@ void set_ambient_caps( const cap_value_t caplist[],short count,cap_flag_value_t 
 /* Identify the list of capabilities which need to set while run as non-root;
    capabilities will be changed based on the application
    Few capabilities can be added/droped by an application          */
-void drop_root_caps(cap_user *_appcaps)
+int drop_root_caps(cap_user *_appcaps)
 {
    int retval=-1;
    struct passwd *ent_pw = NULL;
@@ -185,7 +183,7 @@ void drop_root_caps(cap_user *_appcaps)
    get_process_name(getpid(), process_name);
    get_capabilities(process_name, _appcaps);
 
-   prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);    
+   prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
    if(getuid() == 0)  {
       ent_pw = getpwnam(_appcaps->user_name);
       if (ent_pw && ent_pw->pw_uid != 0)  {
@@ -194,36 +192,36 @@ void drop_root_caps(cap_user *_appcaps)
               }
           }
           if (setuid(ent_pw->pw_uid) < 0) {
-              log_cap("setuid(): failed"); 
-              exit(1);
-          }     
+              log_cap("setuid(): failed");
+              return retval;
+          }
    }
    if (cap_clear_flag(caps, CAP_EFFECTIVE)) {
-       log_cap("cap_clear_flag() internal error \n");
+        log_cap("cap_clear_flag() internal error \n");
    }
    if ( (cap_set_flag(caps, CAP_EFFECTIVE,  _appcaps->default_count, _appcaps->caps_default, CAP_SET) < 0) ) {
-         log_cap("Unable to set default EFFECTIVE Flags: \n");
+        log_cap("Unable to set default EFFECTIVE Flags: \n");
    }
    if ( (cap_set_flag(caps, CAP_INHERITABLE,  _appcaps->default_count, _appcaps->caps_default, CAP_SET) < 0) ) {
-         log_cap("Unable to set default INHERITABLE Flags: \n");
+        log_cap("Unable to set default INHERITABLE Flags: \n");
    }
    retval = cap_set_proc(caps);
    if (retval == -1)  {
         log_cap("Failed to set default capabilities \n");
-        exit(1);
+        return retval;
    }
-  
+
    if (CAP_AMBIENT_SUPPORTED()) {
        set_ambient_caps(_appcaps->caps_default,_appcaps->default_count,CAP_SET);
    }
    log_cap("Dropping root privilege of %s: runs as unprivilege mode\n", process_name);
+   return retval;
 }
 
 int update_process_caps(cap_user *_appcaps)
 {
    int retval=-1;
    char process_name[64]={'\0'};
-
    if ( _appcaps->add_count > 0 )  {
      if (cap_set_flag(caps, CAP_EFFECTIVE, (_appcaps->add_count), _appcaps->add, CAP_SET) < 0)
      {
@@ -233,21 +231,21 @@ int update_process_caps(cap_user *_appcaps)
      {
          log_cap("Unable to set process specific INHERITABLE Flags \n");
      }
-   }   
+   }
    if ( _appcaps->drop_count > 0 ) {
      if (cap_set_flag(caps, CAP_EFFECTIVE, (_appcaps->drop_count), _appcaps->drop, CAP_CLEAR) < 0)
-     { 
+     {
          log_cap("Unable to clear process specific EFFECTIVE Flags \n");
      }
      if(cap_set_flag(caps, CAP_INHERITABLE, (_appcaps->drop_count), _appcaps->drop, CAP_CLEAR) < 0) 
      {
          log_cap("Unable to clear process specific INHERITABLE Flags \n");
      }
-   }  
+   }
    retval = cap_set_proc(caps);
    if (retval == -1)  {
         log_cap("Failed to set process specific capabilities: \n");
-        exit(1);
+        return retval;
    }
    prctl(PR_SET_DUMPABLE, 1, 0, 0, 0);
 
@@ -263,7 +261,7 @@ int update_process_caps(cap_user *_appcaps)
    get_process_name(getpid(), process_name);
    cap_free(caps);
    caps = NULL;
-   return retval;   
+   return retval;
 }
 
 void gain_root_privilege()
