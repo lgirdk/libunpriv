@@ -42,5 +42,9 @@
   "pppmanager":{
         "allow":"UGID_GROUP,SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
         "drop":""
+  },
+  "telemetry2_0":{
+        "allow":"NETWORK_GROUP,SYSTEM_GROUP",
+        "drop":""
   }
 }
