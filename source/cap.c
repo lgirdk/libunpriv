@@ -189,6 +189,7 @@ int drop_root_caps(cap_user *_appcaps)
       if (ent_pw && ent_pw->pw_uid != 0)  {
           if (setgid(ent_pw->pw_gid) == -1)   {
                   log_cap("setgid(): failed \n");
+                  return retval;
               }
           }
           if (setuid(ent_pw->pw_uid) < 0) {
@@ -196,18 +197,30 @@ int drop_root_caps(cap_user *_appcaps)
               return retval;
           }
    }
+
+   /* Restrict the permitted set such that it contains only the default and process-specific allow capabilities */
+   if (cap_clear_flag(caps, CAP_PERMITTED)) {
+        log_cap("PERMITTED - cap_clear_flag() internal error\n");
+   }
+   if ( (cap_set_flag(caps, CAP_PERMITTED,  _appcaps->default_count, _appcaps->caps_default, CAP_SET) < 0) ) {
+        log_cap("Unable to set the PERMITTED default Flags\n");
+   }
+   if ( (cap_set_flag(caps, CAP_PERMITTED,  _appcaps->add_count, _appcaps->add, CAP_SET) < 0) ) {
+        log_cap("Unable to set the PERMITTED add Flags\n");
+   }
+
    if (cap_clear_flag(caps, CAP_EFFECTIVE)) {
-        log_cap("cap_clear_flag() internal error \n");
+        log_cap("EFFECTIVE - cap_clear_flag() internal error\n");
    }
    if ( (cap_set_flag(caps, CAP_EFFECTIVE,  _appcaps->default_count, _appcaps->caps_default, CAP_SET) < 0) ) {
-        log_cap("Unable to set default EFFECTIVE Flags: \n");
+        log_cap("Unable to set default EFFECTIVE Flags\n");
    }
    if ( (cap_set_flag(caps, CAP_INHERITABLE,  _appcaps->default_count, _appcaps->caps_default, CAP_SET) < 0) ) {
-        log_cap("Unable to set default INHERITABLE Flags: \n");
+        log_cap("Unable to set default INHERITABLE Flags\n");
    }
    retval = cap_set_proc(caps);
    if (retval == -1)  {
-        log_cap("Failed to set default capabilities \n");
+        log_cap("Failed to set default capabilities\n");
         return retval;
    }
 
@@ -225,26 +238,26 @@ int update_process_caps(cap_user *_appcaps)
    if ( _appcaps->add_count > 0 )  {
      if (cap_set_flag(caps, CAP_EFFECTIVE, (_appcaps->add_count), _appcaps->add, CAP_SET) < 0)
      {
-         log_cap("Unable to set process specific EFFECTIVE Flags \n");
+         log_cap("Unable to set process specific EFFECTIVE Flags\n");
      }
      if (cap_set_flag(caps, CAP_INHERITABLE, (_appcaps->add_count), _appcaps->add, CAP_SET) < 0)
      {
-         log_cap("Unable to set process specific INHERITABLE Flags \n");
+         log_cap("Unable to set process specific INHERITABLE Flags\n");
      }
    }
    if ( _appcaps->drop_count > 0 ) {
      if (cap_set_flag(caps, CAP_EFFECTIVE, (_appcaps->drop_count), _appcaps->drop, CAP_CLEAR) < 0)
      {
-         log_cap("Unable to clear process specific EFFECTIVE Flags \n");
+         log_cap("Unable to clear process specific EFFECTIVE Flags\n");
      }
      if(cap_set_flag(caps, CAP_INHERITABLE, (_appcaps->drop_count), _appcaps->drop, CAP_CLEAR) < 0) 
      {
-         log_cap("Unable to clear process specific INHERITABLE Flags \n");
+         log_cap("Unable to clear process specific INHERITABLE Flags\n");
      }
    }
    retval = cap_set_proc(caps);
    if (retval == -1)  {
-        log_cap("Failed to set process specific capabilities: \n");
+        log_cap("Failed to set process specific capabilities\n");
         return retval;
    }
    prctl(PR_SET_DUMPABLE, 1, 0, 0, 0);
