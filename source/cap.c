@@ -114,6 +114,12 @@ void get_process_name(const pid_t pid, char *pname)
   }
 }
 
+/*check if process is already running as non-root*/
+bool isNonroot( )
+{
+   return ((getuid()!=0)?true:false);
+}
+
 /* initializes cap_t structure */
 cap_t init_capability(void)
 {
@@ -137,7 +143,7 @@ void read_capability(cap_user *_appcaps)
        log_cap("unprivilege user name: %s \n", _appcaps->user_name);
    }
    if (_appcaps->caps != NULL) {
-        cap_free(_appcaps->caps);
+       cap_free(_appcaps->caps);
    }
    _appcaps->caps = cap_to_text(caps, NULL);
    if (_appcaps->caps == NULL)  {
@@ -171,6 +177,13 @@ int drop_root_caps(cap_user *_appcaps)
    int retval=-1;
    struct passwd *ent_pw = NULL;
    const char *default_user = "non-root";
+   char process_name[64]={'\0'};
+   get_process_name(getpid(), process_name);
+
+   if(isNonroot()) {
+      log_cap("No need to drop_root_caps again - %s process is already running as non-root\n",process_name);
+      return 0;
+   }
 
    if (_appcaps->user_name == NULL)  {
        _appcaps->user_name = (char*)malloc(strlen(default_user)+1);
@@ -179,8 +192,6 @@ int drop_root_caps(cap_user *_appcaps)
        }
    }
 
-   char process_name[64]={'\0'};
-   get_process_name(getpid(), process_name);
    get_capabilities(process_name, _appcaps);
 
    prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
