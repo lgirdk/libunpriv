@@ -54,5 +54,9 @@
    "rdkssacli":{
         "allow":"",
         "drop":""
+  },
+  "CcspCMAgentSsp":{
+        "allow":"NETWORK_GROUP,SYSTEM_GROUP,CAP_SYS_ADMIN,CAP_SYS_RAWIO,CAP_MKNOD",
+        "drop":"UGID_GROUP"
   }
 }
