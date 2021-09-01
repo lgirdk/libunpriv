@@ -40,8 +40,8 @@
    	"drop":"UGID_GROUP"
   },
   "wanmanager":{
-        "allow":"SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
-        "drop":"UGID_GROUP"
+        "allow":"SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO,CAP_SYS_MODULE",
+        "drop":""
   },
   "pppmanager":{
         "allow":"SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
