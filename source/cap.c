@@ -26,6 +26,7 @@ static cap_t caps;
 static void get_process_name(const pid_t pid, char *pname);
 
 #define BLACKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist"
+#define BLOCKLIST_FILE "/opt/secure/Blocklist_file.txt"
 
 /* prepare and updated caps list */
 bool isNull(char *str)
@@ -52,6 +53,49 @@ bool fetchRFC(char* key,char** value)
   }
 #endif
   return false;
+}
+
+bool isBlocklisted()
+{
+  FILE *fp = NULL;
+  bool ret=false;
+  char process_name[64]={'\0'};
+  int len=0;
+  char *buf = NULL;
+  fp = fopen(BLOCKLIST_FILE,"r");
+  if(fp == NULL)
+  {
+    log_cap("Blocklist process list is empty\n");
+    return ret;
+  }
+  fseek(fp, 0, SEEK_END);
+  len = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  buf = (char*)malloc(sizeof(char) * (len + 1));
+  if (buf != NULL)
+  {
+    memset(buf, 0, (sizeof(char) * (len + 1)));
+    fread(buf, 1, len, fp);
+  }
+  else
+  {
+    log_cap("Memory allocation failed for buffer\n");
+  }
+  fclose(fp);
+  if((buf != NULL) && (strlen(buf) != 0)){
+    get_process_name(getpid(), process_name);
+    if(strcasestr(buf,process_name) != NULL) {
+      log_cap("process[%s] is found in blocklist,thus process runs in Root mode\n",process_name);
+      ret = true;
+    }
+    free(buf);
+    buf = NULL;
+  }
+  else
+  {
+    log_cap("Blocklist process list is empty\n");
+  }
+  return ret;
 }
 
 bool isBlacklisted()
@@ -184,7 +228,6 @@ int drop_root_caps(cap_user *_appcaps)
            strncpy(_appcaps->user_name,default_user,strlen(default_user)+1);
        }
    }
-
    char process_name[64]={'\0'};
    get_process_name(getpid(), process_name);
    get_capabilities(process_name, _appcaps);
