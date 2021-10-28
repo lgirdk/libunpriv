@@ -48,12 +48,10 @@ short default_count;
 char *caps;
 }cap_user;
 
+// check for blocklist process
 bool isBlocklisted(void);
 
-// check for blacklist process
-bool isBlacklisted(void);
-
-// fetch the blacklist rfc
+// fetch the blocklist rfc
 bool fetchRFC(char* key,char** value);
 
 /* initializes cap_t structure */

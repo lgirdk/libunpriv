@@ -25,7 +25,7 @@ static cap_t caps;
 
 static void get_process_name(const pid_t pid, char *pname);
 
-#define BLACKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist"
+#define BLOCKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blocklist"
 #define BLOCKLIST_FILE "/opt/secure/Blocklist_file.txt"
 
 /* prepare and updated caps list */
@@ -57,15 +57,15 @@ bool fetchRFC(char* key,char** value)
 
 bool isBlocklisted()
 {
-  FILE *fp = NULL;
   bool ret=false;
-  char process_name[64]={'\0'};
+#ifdef _RDK_BROADBAND_PRIV_CAPS_
+  FILE *fp = NULL;
   int len=0;
+  char process_name[64]={'\0'};
   char *buf = NULL;
   fp = fopen(BLOCKLIST_FILE,"r");
   if(fp == NULL)
   {
-    log_cap("Blocklist process list is empty\n");
     return ret;
   }
   fseek(fp, 0, SEEK_END);
@@ -91,36 +91,19 @@ bool isBlocklisted()
     free(buf);
     buf = NULL;
   }
-  else
-  {
-    log_cap("Blocklist process list is empty\n");
-  }
-  return ret;
-}
-
-bool isBlacklisted()
-{
- bool ret=false;
- char process_name[64]={'\0'};
+#elif _RDK_VIDEO_PRIV_CAPS_
  char *list=NULL;
-
- if(fetchRFC(BLACKLIST_RFC,&list))
+ char process_name[64]={'\0'};
+ if(fetchRFC(BLOCKLIST_RFC,&list))
  {
     get_process_name(getpid(), process_name);
     if(strcasestr(list,process_name) != NULL)
     {
-       log_cap("process[%s] is found in blacklist,Thus process runs in Root mode\n",process_name);
+       log_cap("process[%s] is found in blocklist,Thus process runs in Root mode\n",process_name);
        ret = true;
     }
-    else
-    {
-       log_cap("process[%s] is not found in blacklist,Thus process runs in Nonroot mode\n",process_name);
-    }
  }
- else
- {
-    log_cap("Blacklist process list is empty\n");
- }
+#endif
  return ret;
 }
 

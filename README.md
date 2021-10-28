@@ -62,8 +62,8 @@ libprivilege library dependes on libcap library. libcap or linux capabilities pr
 
 ## API:
 
-/* Check whether calling process is Blacklisted or not */ 
-bool isBlacklisted(void);
+/* Check whether calling process is Blocklisted or not */ 
+bool isBlocklisted(void);
 
 /* to fetch the RFC value */ 
 bool fetchRFC(char* key,char** value);
@@ -83,7 +83,7 @@ int update_process_caps(cap_user *);
 ## Steps to be followed to convert a process as non-root:
 • Identify the capabilities required for the process using apparmor , strace or code walkthrough.
 
-• Ensure process name is not present in Blacklist string "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist".
+• Ensure process name is not present in Blocklist string "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blocklist".
 
 • Add the processes specific tag in process-capabilities.json with allow and drop caps.
 
@@ -95,17 +95,17 @@ int update_process_caps(cap_user *);
 
 • read_capability(&appcaps) -> Reads and dumps the current process capabilities and dumps to log file.
 
-## Blacklist Mechanism:
+## Blocklist Mechanism:
 
-• RFC: Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blacklist.
+• RFC: Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blocklist.
 
-• By Default, Blacklist String will be "Empty".
+• By Default, Blocklist String will be "Empty".
 
 • The Calling Process will run in Nonroot Mode in two conditions:
-    • Blacklist string does not contain the process name.
-    • Blacklist RFC is empty.
+    • Blocklist string does not contain the process name.
+    • Blocklist RFC is empty.
     
-• If particular process added in Blacklist String, then it will be executed in Root mode.
+• If particular process added in Blocklist String, then it will be executed in Root mode.
 
 # Sequence Diagram:
 
