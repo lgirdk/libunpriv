@@ -1,13 +1,23 @@
 {
    "default":"CAP_CHOWN,CAP_DAC_OVERRIDE,CAP_DAC_READ_SEARCH,CAP_FOWNER,CAP_FSETID,CAP_KILL,CAP_IPC_LOCK,CAP_SYS_NICE,CAP_SETPCAP,CAP_IPC_OWNER,CAP_SYS_PTRACE,CAP_SYS_CHROOT",
-  
    "SYSTEM_GROUP":"CAP_SYS_RESOURCE",
    "NETWORK_GROUP":"CAP_NET_ADMIN,CAP_NET_RAW,CAP_NET_BIND_SERVICE",
    "UGID_GROUP":"CAP_SETGID,CAP_SETUID",
-  
+
    "parodus":{
       "allow":"SYSTEM_GROUP,NETWORK_GROUP",
       "drop":""
+   },
+   "ledmgr":{
+      "allow":"",
+      "drop":""
+   },
+   "audiocapturemgr":{
+      "allow":"",
+      "drop":""
+   },
+   "irMgrMain":{
+      "allow":"SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_ADMIN",
+      "drop":""
    }
-  
 }
