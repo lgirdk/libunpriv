@@ -26,7 +26,13 @@ static cap_t caps;
 static void get_process_name(const pid_t pid, char *pname);
 
 #define BLOCKLIST_RFC "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.NonRootSupport.Blocklist"
-#define BLOCKLIST_FILE "/opt/secure/Blocklist_file.txt"
+#ifdef _COSA_INTEL_XB3_ARM_
+    #define BLOCKLIST_FILE "/nvram/Blocklist_XB3.txt"
+#elif defined _COSA_INTEL_USG_ATOM_
+    #define BLOCKLIST_FILE "/nvram/Blocklist_XB3.txt"
+#else
+    #define BLOCKLIST_FILE "/opt/secure/Blocklist_file.txt"
+#endif
 
 /* prepare and updated caps list */
 bool isNull(char *str)
