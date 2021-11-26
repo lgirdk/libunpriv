@@ -106,7 +106,6 @@ bool isBlacklisted()
 
  if(fetchRFC(BLACKLIST_RFC,&list))
  {
-    log_cap("The Blacklist is : %s\n",list);
     get_process_name(getpid(), process_name);
     if(strcasestr(list,process_name) != NULL)
     {
