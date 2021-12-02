@@ -223,16 +223,16 @@ int drop_root_caps(cap_user *_appcaps)
    prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
    if(getuid() == 0)  {
       ent_pw = getpwnam(_appcaps->user_name);
-      if (ent_pw && ent_pw->pw_uid != 0)  {
-          if (setgid(ent_pw->pw_gid) == -1)   {
-                  log_cap("setgid(): failed \n");
-                  return retval;
-              }
+      if (ent_pw && ent_pw->pw_uid != 0) {
+          if (setgid(ent_pw->pw_gid) < 0) {
+              log_cap("setgid(): failed \n");
+              return retval;
           }
           if (setuid(ent_pw->pw_uid) < 0) {
               log_cap("setuid(): failed");
               return retval;
           }
+      }
    }
 
    /* Restrict the permitted set such that it contains only the default and process-specific allow capabilities */
