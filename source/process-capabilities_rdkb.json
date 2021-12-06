@@ -28,7 +28,7 @@
       "drop":"UGID_GROUP,CAP_DAC_OVERRIDE"
    },
    "CcspTr069PaSsp":{
-      "allow":"NETWORK_GROUP",
+      "allow":"NETWORK_GROUP,SYSTEM_GROUP,CAP_SYS_RAWIO",
       "drop":"UGID_GROUP"
    },
    "lighttpd":{
@@ -48,7 +48,7 @@
         "drop":""
   },
   "telemetry2_0":{
-        "allow":"NETWORK_GROUP,SYSTEM_GROUP",
+        "allow":"NETWORK_GROUP,SYSTEM_GROUP,CAP_SYS_RAWIO",
         "drop":"UGID_GROUP"
   },
   "CcspWifiSsp":{
