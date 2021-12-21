@@ -70,6 +70,9 @@ int update_process_caps(cap_user *);
 /* Read the current capability of process */
 void read_capability(cap_user *);
 
+/* Switch to non-root */
+bool drop_root_priv(cap_user *);
+
 /* Switch to root */
 void gain_root_privilege();
 

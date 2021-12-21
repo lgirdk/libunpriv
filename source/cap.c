@@ -321,6 +321,21 @@ int update_process_caps(cap_user *_appcaps)
    return retval;
 }
 
+
+bool drop_root_priv(cap_user *_appcaps)
+{
+    bool ret = false;
+    if(init_capability() != NULL) {
+        if(drop_root_caps(_appcaps) != -1) {
+            if(update_process_caps(_appcaps) != -1) {
+                read_capability(_appcaps);
+                ret = true;
+            }
+        }
+    }
+    return ret;
+}
+
 void gain_root_privilege()
 {
   if (setgid(0) == -1) {

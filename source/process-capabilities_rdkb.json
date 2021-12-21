@@ -66,5 +66,13 @@
   "zebra":{
         "allow":"CAP_NET_ADMIN,CAP_NET_RAW,CAP_SYS_ADMIN,CAP_NET_BIND_SERVICE",
         "drop":""
+  },
+  "dibbler-server":{
+	"allow":"NETWORK_GROUP",
+	"drop":""
+  },
+  "dibbler-client":{
+	"allow":"NETWORK_GROUP",
+	"drop":""
   }
 }
