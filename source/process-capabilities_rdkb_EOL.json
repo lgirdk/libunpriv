@@ -17,7 +17,7 @@
    },
    "webpa":{
       "allow":"NETWORK_GROUP",
-      "drop":"UGID_GROUP,CAP_DAC_OVERRIDE"
+      "drop":"UGID_GROUP"
    },
    "PsmSsp":{
       "allow":"",
@@ -36,8 +36,8 @@
    	"drop":"UGID_GROUP"
   },
   "wanmanager":{
-        "allow":"SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
-        "drop":"UGID_GROUP"
+        "allow":"SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO,CAP_SYS_MODULE",
+        "drop":""
   },
   "pppmanager":{
         "allow":"SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
@@ -74,9 +74,5 @@
   "dibbler-client":{
 	"allow":"NETWORK_GROUP",
 	"drop":""
-  },
-  "xfinitytest":{
-        "allow":"NETWORK_GROUP,SYSTEM_GROUP,CAP_SYS_MODULE,CAP_SYS_ADMIN,CAP_SYS_RAWIO,CAP_SYS_TTY_CONFIG,CAP_BLOCK_SUSPEND,CAP_MKNOD",
-        "drop":"UGID_GROUP"
   }
 }
