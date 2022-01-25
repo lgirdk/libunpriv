@@ -19,6 +19,10 @@
       "allow":"NETWORK_GROUP",
       "drop":"UGID_GROUP"
    },
+   "webconfig":{
+      "allow":"NETWORK_GROUP",
+      "drop":"UGID_GROUP"
+   },
    "PsmSsp":{
       "allow":"",
       "drop":"UGID_GROUP"
