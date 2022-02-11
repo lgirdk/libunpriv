@@ -9,7 +9,7 @@
    },
    "parodus":{
       "allow":"SYSTEM_GROUP,NETWORK_GROUP",
-      "drop":"UGID_GROUP"
+      "drop":"UGID_GROUP,CAP_DAC_OVERRIDE"
    },
    "CcspEthAgent":{
       "allow":"SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
@@ -25,7 +25,7 @@
    },
    "PsmSsp":{
       "allow":"",
-      "drop":"UGID_GROUP"
+      "drop":"UGID_GROUP,CAP_DAC_OVERRIDE"
    },
    "CcspTr069PaSsp":{
       "allow":"NETWORK_GROUP",
