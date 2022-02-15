@@ -17,7 +17,7 @@
    },
    "webpa":{
       "allow":"NETWORK_GROUP",
-      "drop":"UGID_GROUP,CAP_DAC_OVERRIDE"
+      "drop":"UGID_GROUP"
    },
    "PsmSsp":{
       "allow":"",
