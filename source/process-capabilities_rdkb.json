@@ -33,7 +33,7 @@
    },
    "lighttpd":{
         "allow":"NETWORK_GROUP",
-        "drop":"UGID_GROUP"
+        "drop":"CAP_DAC_OVERRIDE"
   },
   "bridgeUtils":{
    	"allow":"NETWORK_GROUP,SYSTEM_GROUP,CAP_SYS_TTY_CONFIG,CAP_SYS_ADMIN,CAP_SYS_RAWIO",
