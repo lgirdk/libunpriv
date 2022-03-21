@@ -55,6 +55,10 @@
         "allow":"NETWORK_GROUP,SYSTEM_GROUP,CAP_SYS_MODULE,CAP_SYS_ADMIN,CAP_SYS_RAWIO,CAP_SYS_TTY_CONFIG,CAP_BLOCK_SUSPEND,CAP_MKNOD",
         "drop":"UGID_GROUP"
   },
+  "OneWifi":{
+        "allow":"NETWORK_GROUP,SYSTEM_GROUP,CAP_SYS_MODULE,CAP_SYS_ADMIN,CAP_SYS_RAWIO,CAP_SYS_TTY_CONFIG,CAP_BLOCK_SUSPEND,CAP_MKNOD",
+        "drop":"UGID_GROUP"
+  },
   "rdkssacli":{
         "allow":"",
         "drop":""
