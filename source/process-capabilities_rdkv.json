@@ -19,5 +19,9 @@
    "irMgrMain":{
       "allow":"SYSTEM_GROUP,NETWORK_GROUP,CAP_SYS_ADMIN",
       "drop":""
+   },
+      "authservice":{
+      "allow":"CAP_SYS_RAWIO",
+      "drop":""
    }
 }

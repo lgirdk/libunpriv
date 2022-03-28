@@ -152,6 +152,12 @@ static void get_process_name(const pid_t pid, char *pname)
   }
 }
 
+/*check if process is already running as non-root*/
+bool isNonroot( )
+{
+   return ((getuid()!=0)?true:false);
+}
+
 /* initializes cap_t structure */
 cap_t init_capability(void)
 {
@@ -209,6 +215,13 @@ int drop_root_caps(cap_user *_appcaps)
    int retval=-1;
    struct passwd *ent_pw = NULL;
    const char *default_user = "non-root";
+   char process_name[64]={'\0'};
+   get_process_name(getpid(), process_name);
+
+   if(isNonroot()) {
+      log_cap("No need to drop_root_caps again - %s process is already running as non-root\n",process_name);
+      return 0;
+   }
 
    if (_appcaps->user_name == NULL)  {
        _appcaps->user_name = (char*)malloc(strlen(default_user)+1);
@@ -216,8 +229,8 @@ int drop_root_caps(cap_user *_appcaps)
            strncpy(_appcaps->user_name,default_user,strlen(default_user)+1);
        }
    }
-   char process_name[64]={'\0'};
-   get_process_name(getpid(), process_name);
+   
+   
    get_capabilities(process_name, _appcaps);
 
    prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
