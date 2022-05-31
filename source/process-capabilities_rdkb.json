@@ -92,7 +92,7 @@
         "drop":""
   },
   "CcspLMLite":{
-	 "allow":"NETWORK_GROUP",
+	 "allow":"NETWORK_GROUP,CAP_SYS_RAWIO",
 	 "drop":""
   },
     "CcspDHCPMgr":{
