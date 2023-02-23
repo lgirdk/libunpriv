@@ -14,7 +14,7 @@ const string m_sCapFileName = "/etc/security/caps/process-capabilities.json";
 const std::string currentDateTime()
 {
    time_t     now = time(NULL);
-   struct tm * tstruct = localtime(&now);
+   struct tm * tstruct = gmtime(&now);
    char       buf[80];
    strftime(buf, sizeof(buf), "%A, %b %d %H:%M:%S %Y", tstruct);
    return buf;
