@@ -76,26 +76,30 @@ bool isBlocklisted()
   }
   fseek(fp, 0, SEEK_END);
   len = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
-  buf = (char*)malloc(sizeof(char) * (len + 1));
-  if (buf != NULL)
+  if(len >= 0)
   {
-    memset(buf, 0, (sizeof(char) * (len + 1)));
-    fread(buf, 1, len, fp);
-  }
-  else
-  {
-    log_cap("Memory allocation failed for buffer\n");
-  }
-  fclose(fp);
-  if((buf != NULL) && (strlen(buf) != 0)){
-    get_process_name(getpid(), process_name);
-    if(strcasestr(buf,process_name) != NULL) {
-      log_cap("process[%s] is found in blocklist,thus process runs in Root mode\n",process_name);
-      ret = true;
+    fseek(fp, 0, SEEK_SET);
+    buf = (char*)malloc(sizeof(char) * (len + 1));
+    if (buf != NULL)
+    {
+      memset(buf, 0, (sizeof(char) * (len + 1)));
+      fread(buf, 1, len, fp);
+      buf[len] = '\0';
     }
-    free(buf);
-    buf = NULL;
+    else
+    {
+      log_cap("Memory allocation failed for buffer\n");
+    }
+    fclose(fp);
+    if((buf != NULL) && (strlen(buf) != 0)){
+      get_process_name(getpid(), process_name);
+      if(strcasestr(buf,process_name) != NULL) {
+        log_cap("process[%s] is found in blocklist,thus process runs in Root mode\n",process_name);
+        ret = true;
+      }
+      free(buf);
+      buf = NULL;
+    }
   }
 #elif _RDK_VIDEO_PRIV_CAPS_
  char *list=NULL;
@@ -108,6 +112,8 @@ bool isBlocklisted()
        log_cap("process[%s] is found in blocklist,Thus process runs in Root mode\n",process_name);
        ret = true;
     }
+    free(list);
+    list = NULL;
  }
 #endif
  return ret;
@@ -174,14 +180,14 @@ void read_capability(cap_user *_appcaps)
    caps = cap_get_pid(getpid());
    if (caps == NULL)
    {
-       log_cap("Failed to get current caps for %s process \n", getpid());
+       log_cap("Failed to get current caps for %d process \n", getpid());
        exit(1);
    }
    if (_appcaps != NULL)  {
        log_cap("unprivilege user name: %s \n", _appcaps->user_name);
-   }
-   if (_appcaps->caps != NULL) {
-        cap_free(_appcaps->caps);
+       if (_appcaps->caps != NULL) {
+            cap_free(_appcaps->caps);
+       }
    }
    _appcaps->caps = cap_to_text(caps, NULL);
    if (_appcaps->caps == NULL)  {
