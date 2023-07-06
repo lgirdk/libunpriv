@@ -112,8 +112,11 @@ bool isBlocklisted()
        log_cap("process[%s] is found in blocklist,Thus process runs in Root mode\n",process_name);
        ret = true;
     }
-    free(list);
-    list = NULL;
+ }
+ if(list)
+ {
+     free(list); // CID 192628 Resource leak (RESOURCE_LEAK)
+     list = NULL;
  }
 #endif
  return ret;
@@ -185,17 +188,18 @@ void read_capability(cap_user *_appcaps)
    }
    if (_appcaps != NULL)  {
        log_cap("unprivilege user name: %s \n", _appcaps->user_name);
-       if (_appcaps->caps != NULL) {
-            cap_free(_appcaps->caps);
+   
+       if (_appcaps->caps != NULL) { //CID 143594: Dereference after null check (FORWARD_NULL)
+           cap_free(_appcaps->caps);
        }
-   }
-   _appcaps->caps = cap_to_text(caps, NULL);
-   if (_appcaps->caps == NULL)  {
-       log_cap("Unable to handle error in cap_to_text \n");
-       exit(1);
-   }
+       _appcaps->caps = cap_to_text(caps, NULL);
+       if (_appcaps->caps == NULL)  {
+           log_cap("Unable to handle error in cap_to_text \n");
+           exit(1);
+       }
    log_cap("Dumping current caps of the process: %s\n", _appcaps->caps);
    cap_free(caps);
+   }
 }
 
 void set_ambient_caps( const cap_value_t caplist[],short count,cap_flag_value_t value)
@@ -241,6 +245,7 @@ int drop_root_caps(cap_user *_appcaps)
 
    prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
    if(getuid() == 0)  {
+      if( NULL != _appcaps->user_name ) // CID 160956: Dereference after null check (FORWARD_NULL)
       ent_pw = getpwnam(_appcaps->user_name);
       if (ent_pw && ent_pw->pw_uid != 0) {
           if (setgid(ent_pw->pw_gid) < 0) {
