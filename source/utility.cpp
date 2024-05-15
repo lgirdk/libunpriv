@@ -13,11 +13,17 @@ const string m_sCapFileName = "/etc/security/caps/process-capabilities.json";
 
 const std::string currentDateTime()
 {
-   time_t     now = time(NULL);
-   struct tm * tstruct = gmtime(&now);
-   char       buf[80];
-   strftime(buf, sizeof(buf), "%A, %b %d %H:%M:%S %Y", tstruct);
-   return buf;
+    struct timespec ts;
+    memset(&ts, 0, sizeof(ts));
+    clock_gettime(CLOCK_REALTIME, &ts);
+    struct tm * tstruct = gmtime( &ts.tv_sec );
+    char       buf[80];
+    char       outBuf[80];
+
+    strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%S", tstruct);
+    snprintf(outBuf, sizeof(outBuf), "%s.%03dZ ", buf, (int)(ts.tv_nsec/1000000));
+
+    return outBuf;
 }
 
 int _vscprintf (const char * format, va_list pargs) {
