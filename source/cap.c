@@ -25,29 +25,6 @@ static cap_t caps;
 
 static void get_process_name(const pid_t pid, char *pname);
 
-void prepare_caps(cap_user *_appcaps,const cap_value_t _cap_add[],const cap_value_t _cap_drop[])
-{
-    int i=0;
-    const char *default_user = "non-root";
-    if ( _appcaps == NULL )  {
-         log_cap("Failed to allocate cap_user: \n");
-         exit(1);
-    }
-    if ( _cap_add != NULL )  {
-         for ( i = 0; i < _appcaps->add_count ; i++)  {
-                _appcaps->add[i]= _cap_add[i];
-         }
-    }
-    if ( _cap_drop != NULL )  {
-         for ( i = 0; i < _appcaps->drop_count ; i++)  {
-                _appcaps->drop[i]= _cap_drop[i];
-         }
-    }
-    if (_appcaps->user_name)  {
-       strncpy(_appcaps->user_name, default_user, strlen(default_user)+1);
-    }
-}
-
 static void get_process_name(const pid_t pid, char *pname)
 {
   char procfile[32]={'\0'};

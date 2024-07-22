@@ -54,9 +54,6 @@ static inline bool isBlocklisted(void)
 /* initializes cap_t structure */
 cap_t init_capability(void);
 
-/* Application/Process specific capabilities */
-void prepare_caps(cap_user *,const cap_value_t cap_add[], const cap_value_t cap_drop[]);
-
 /* Identify the list of capabilities which need to set while run as non-root;
    Default capabilities will be applied from this function */
 int drop_root_caps(cap_user *);
