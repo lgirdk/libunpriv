@@ -46,7 +46,10 @@ char *caps;
 }cap_user;
 
 // check for blocklist process
-bool isBlocklisted(void);
+static inline bool isBlocklisted(void)
+{
+    return false;
+}
 
 /* initializes cap_t structure */
 cap_t init_capability(void);
