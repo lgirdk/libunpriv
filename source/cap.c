@@ -25,50 +25,6 @@ static cap_t caps;
 
 static void get_process_name(const pid_t pid, char *pname);
 
-#define BLOCKLIST_FILE "/nvram/Blocklist_file.txt"
-
-bool isBlocklisted()
-{
-  bool ret=false;
-  FILE *fp = NULL;
-  int len=0;
-  char process_name[64]={'\0'};
-  char *buf = NULL;
-  fp = fopen(BLOCKLIST_FILE,"r");
-  if(fp == NULL)
-  {
-    return ret;
-  }
-  fseek(fp, 0, SEEK_END);
-  len = ftell(fp);
-  if(len >= 0)
-  {
-    fseek(fp, 0, SEEK_SET);
-    buf = (char*)malloc(sizeof(char) * (len + 1));
-    if (buf != NULL)
-    {
-      memset(buf, 0, (sizeof(char) * (len + 1)));
-      fread(buf, 1, len, fp);
-      buf[len] = '\0';
-    }
-    else
-    {
-      log_cap("Memory allocation failed for buffer\n");
-    }
-    fclose(fp);
-    if((buf != NULL) && (strlen(buf) != 0)){
-      get_process_name(getpid(), process_name);
-      if(strcasestr(buf,process_name) != NULL) {
-        log_cap("process[%s] is found in blocklist,thus process runs in Root mode\n",process_name);
-        ret = true;
-      }
-      free(buf);
-      buf = NULL;
-    }
-  }
- return ret;
-}
-
 void prepare_caps(cap_user *_appcaps,const cap_value_t _cap_add[],const cap_value_t _cap_drop[])
 {
     int i=0;
