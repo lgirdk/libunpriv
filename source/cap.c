@@ -126,7 +126,6 @@ void set_ambient_caps( const cap_value_t caplist[],short count,cap_flag_value_t 
 int drop_root_caps(cap_user *_appcaps)
 {
    int retval=-1;
-   struct passwd *ent_pw = NULL;
    const char *default_user = "non-root";
    char process_name[64]={'\0'};
    get_process_name(getpid(), process_name);
@@ -136,29 +135,27 @@ int drop_root_caps(cap_user *_appcaps)
       return 0;
    }
 
-   if (_appcaps->user_name == NULL)  {
-       _appcaps->user_name = (char*)malloc(strlen(default_user)+1);
-       if( NULL != _appcaps->user_name ){
-           strncpy(_appcaps->user_name,default_user,strlen(default_user)+1);
-       }
+   if (_appcaps->user_name == NULL) {
+      _appcaps->user_name = strdup(default_user);
    }
-   
-   
+
    get_capabilities(process_name, _appcaps);
 
    prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
-   if(getuid() == 0)  {
-      if( NULL != _appcaps->user_name ) // CID 160956: Dereference after null check (FORWARD_NULL)
-      ent_pw = getpwnam(_appcaps->user_name);
-      if (ent_pw && ent_pw->pw_uid != 0) {
-          if (setgid(ent_pw->pw_gid) < 0) {
-              log_cap("setgid(): failed \n");
-              return retval;
-          }
-          if (setuid(ent_pw->pw_uid) < 0) {
-              log_cap("setuid(): failed");
-              return retval;
-          }
+
+   if (getuid() == 0) {
+      if (_appcaps->user_name) {
+         struct passwd *ent_pw = getpwnam(_appcaps->user_name);
+         if (ent_pw && ent_pw->pw_uid != 0) {
+            if (setgid(ent_pw->pw_gid) < 0) {
+               log_cap("setgid(): failed \n");
+               return retval;
+            }
+            if (setuid(ent_pw->pw_uid) < 0) {
+               log_cap("setuid(): failed");
+               return retval;
+            }
+         }
       }
    }
 
